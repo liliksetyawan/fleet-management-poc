@@ -1,0 +1,19 @@
+{
+  "info": {
+    "_postman_id": "9c5fdd4e-fd67-4c1a-9b6c-fleetpoc001",
+    "name": "Fleet Management POC",
+    "description": "API test collection for Transjakarta fleet management POC.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080" },
+    { "key": "vehicleId", "value": "B1234XYZ" },
+    { "key": "start", "value": "1715000000" },
+    { "key": "end", "value": "1999999999" }
+  ],
+  "item": [
+    { "name": "Health Check", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/health" } },
+    { "name": "Get Latest Vehicle Location", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/vehicles/{{vehicleId}}/location" } },
+    { "name": "Get Vehicle Location History", "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/vehicles/{{vehicleId}}/history?start={{start}}&end={{end}}", "host": ["{{baseUrl}}"], "path": ["vehicles", "{{vehicleId}}", "history"], "query": [{ "key": "start", "value": "{{start}}" }, { "key": "end", "value": "{{end}}" }] } } }
+  ]
+}

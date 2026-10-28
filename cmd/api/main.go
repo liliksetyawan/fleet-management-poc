@@ -39,7 +39,7 @@ func main() {
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer cancel()
 
-	dsn := env("DATABASE_URL", "postgres://fleet:fleetpass@localhost:5432/fleet?sslmode=disable")
+	dsn := env("DATABASE_URL", "postgres://postgres:root@localhost:5432/fleet?sslmode=disable")
 	db, err := postgres.Open(ctx, dsn)
 	if err != nil {
 		log.Fatalf("postgres connection failed: %v", err)
@@ -61,7 +61,13 @@ func main() {
 	}
 	defer rabbit.Close()
 
-	svc := service.NewFleetService(repo, rabbit, envFloat("GEOFENCE_LAT", -6.2088), envFloat("GEOFENCE_LON", 106.8456), envFloat("GEOFENCE_RADIUS_METERS", 50))
+	svc := service.NewFleetService(
+		repo,
+		rabbit,
+		envFloat("GEOFENCE_LAT", -6.2088),
+		envFloat("GEOFENCE_LON", 106.8456),
+		envFloat("GEOFENCE_RADIUS_METERS", 50),
+	)
 	go func() {
 		if err := rabbit.Consume(ctx); err != nil && ctx.Err() == nil {
 			log.Printf("geofence worker stopped: %v", err)
@@ -75,7 +81,11 @@ func main() {
 		}
 	}()
 
-	server := &http.Server{Addr: ":8080", Handler: httptransport.New(repo).Router(), ReadHeaderTimeout: 5 * time.Second}
+	server := &http.Server{
+		Addr:              ":8080",
+		Handler:           httptransport.New(repo).Router(),
+		ReadHeaderTimeout: 5 * time.Second,
+	}
 	go func() {
 		<-ctx.Done()
 		shutdownCtx, c := context.WithTimeout(context.Background(), 10*time.Second)
